@@ -1,47 +1,101 @@
+//package ru.gb.lesson5;
 /**
- * Пусть дан произвольный список целых чисел.
- *
- * 1) Нужно удалить из него чётные числа (void removeEven(ArrayList<Integer> list))
- * 2) Найти минимальное значение         (Integer findMin(ArrayList<Integer> list))
- * 3) Найти максимальное значение
- * 4) Найти среднее значение
- *
- * То есть, нужно реализовать 4 метода, каждый из которых принимает список целых чисел, и делает свою работу.
+ * Реализовать консольное приложение - телефонный справочник.
+ * У одной фамилии может быть несколько номеров.
+ * Пользователь может вводить команды:
+ * 1. ADD Ivanov 88005553535 - добавить в справочник новое значение. Первый аргумент - фамилия, второй - номер телефона
+ * 2. GET Ivanov - получить список всех номеров по фамилии
+ * 3. REMOVE Ivanov - удалить все номера по фамилии
+ * 4. LIST - Посмотреть все записи
+ * 5. EXIT - Завершить программу
+ * Если при GET или REMOVE нужной фамилии нет, вывести информацию об этом
+ * <p>
+ * Пример взаимодействия (=> - это вывод на консоль):
+ * ADD Ivanov 8 800 555 35 35
+ * ADD Ivanov 8 800 100 10 10
+ * GET Ivanov => [8 800 555 35 35, 8 800 100 10 10]
+ * ADD Petrov 8 555 12 34
+ * LIST => Ivanov = [8 800 5553535, 8 800 100 10 10], Petrov = [8 555 12 34]
+ * REMOVE Ivanov
+ * LIST => Petrov = [8 555 12 34]
+ * GET NoName => Не найдена запись с фамилией "NoName"
+ * REMOVE NoName => Не найдена запись с фамилией "NoName"
  */
-package Homework03;
+
+package lesson5;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
+
+import static java.lang.System.in;
 
 public class Homework {
     public static void main(String[] args) {
-        ArrayList<Integer> numbers = new ArrayList<>(Arrays.asList(1, 2, 5, 6, 8, 9, 3, 4, 0, 7, 11, 20)) ;
-        System.out.println(findMin(numbers));
-        System.out.println(findMax(numbers));
-        System.out.println(findAverage(numbers));
-        removeEven(numbers);
-        System.out.println(numbers);
-    }
-        public static void removeEven (ArrayList<Integer> list) {
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i) % 2 == 0) {
-                    list.remove(i);
-                }
+        System.out.println("Введите одну из следующих команд цифрой\n" +
+                "1 - добавить фамилию и номер \n" +
+                "2 - получить список всех номеров по фамилии\n" +
+                "3 - удалить все номера по фамилии\n" +
+                "4 - Посмотреть все записи\n" +
+                "5 - Завершить программу");
+
+        Scanner scanner = new Scanner(in);
+        HashMap<String, List> phoneBook = new HashMap<>();
+        while (true) {
+            String input = scanner.nextLine();
+            String[] command = input.split(" ");
+            if ("1".equals(command[0])) {
+                addData(phoneBook, input);
+            } else if ("2".equals(command[0])) {
+                getBySurname(phoneBook, command);
+            } else if ("3".equals(command[0])) {
+                removeBySurname(phoneBook, command);
+            } else if ("4".equals(command[0])) {
+                allData(phoneBook);
+            } else if ("5".equals(command[0])) {
+                System.exit(0);
+                break;
+            } else {
+                System.err.println("Введена некорректая команда.");
+                System.exit(0);
             }
         }
-    public static Integer findMin(ArrayList<Integer> list) {
-        return Collections.min(list);
     }
-    public static Integer findMax(ArrayList<Integer> list) {
-        return Collections.max(list);
-    }
-    public static Double findAverage(ArrayList<Integer> list) {
-        double sum = 0;
-        for (Integer next : list) {
-            sum += next;
+
+    public static void addData(HashMap<String, List> phoneBook, String command) {
+        String[] name_phone = command.split(" ");
+        StringBuilder phoneNumber = new StringBuilder();
+        for (int i = 2; i < name_phone.length; i++) {
+            phoneNumber.append(name_phone[i]);
         }
-        return sum / list.size();
+        if (phoneBook.containsKey(name_phone[1])) {
+            phoneBook.get(name_phone[1]).add(phoneNumber);
+        } else {
+            List<String> phones = new ArrayList<>();
+            phones.add(String.valueOf(phoneNumber));
+            phoneBook.put(name_phone[1], phones);
+        }
     }
+
+    public static void getBySurname(HashMap<String, List> phoneBook, String[] command) {
+        if (phoneBook.containsKey(command[1])) {
+            System.out.println(command[1] + " - " + phoneBook.get(command[1]));
+        } else {
+            System.out.println("Абонент с таким номером не найден");
+        }
     }
+
+    public static void removeBySurname(HashMap<String, List> phoneBook, String[] command) {
+        if (phoneBook.containsKey(command[1])) {
+            phoneBook.remove(command[1]);
+        } else {
+            System.out.println(command[1] + " такого абонента нет");
+        }
+    }
+    public static void allData(HashMap<String, List> phoneBook) {
+        System.out.println(phoneBook);
+    }
+}
+
 
